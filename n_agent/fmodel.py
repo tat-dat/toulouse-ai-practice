@@ -24,13 +24,13 @@ from rl.core import Processor
 #to slice tensor x, x[1,a:b]: i.e. slice at place 1, from a to b. if the first place is
 #: then slice all place from a to b.
 def Lmodel(N):
-    a = Input(batch_shape=(1,N))
+    a = Input(batch_shape=(N,))
     ob= Input(batch_shape=(1,N))
-#    expand_dims = Lambda(lambda v: K.expand_dims(v))
+    expand_dims = Lambda(lambda v: K.expand_dims(v))
     transpose_layers = Lambda(lambda v: K.transpose(v))
     ain=transpose_layers(a)
     obin=transpose_layers(ob)
-#    ain = expand_dims(a)
+    ain = expand_dims(a)
     x=concatenate([ain,obin])
 #    x=concatenate([a,ob])
     x=Dense(4)(x)
