@@ -22,8 +22,8 @@ class PendulumProcessor(Processor):
         # The magnitude of the reward can be important. Since each step yields a relatively
         # high reward, we reduce the magnitude by two orders.
         return reward / 100.
-N=2
-env=Env()
+N=5
+env=Env(N)
 nb_actions =N
 
 processor = PendulumProcessor()
@@ -33,13 +33,12 @@ memory = SequentialMemory(limit=100000, window_length=1)
 random_process = OrnsteinUhlenbeckProcess(theta=.15, mu=0., sigma=.3, 
                                           size=nb_actions)
 
-agent = NAFAgent(nb_actions=nb_actions, V_model=Vmodel(N), L_model=Lmodel(N),
+agent = NAFAgent(covariance_mode='diag',nb_actions=nb_actions, V_model=Vmodel(N), L_model=Lmodel(N),
                  mu_model=mumodel(N),memory=memory, nb_steps_warmup=100, 
-                 random_process=random_process,
-                 gamma=.99, target_model_update=1e-3, processor=processor)
+                 random_process=random_process, gamma=.99, target_model_update=1e-3)
 
 agent.compile(Adam(lr=.001, clipnorm=1.), metrics=['mae'])
 
-agent.fit(env, nb_steps=50, visualize=False, verbose=1, nb_max_episode_steps=20)
+agent.fit(env, nb_steps=150, visualize=False, verbose=0, nb_max_episode_steps=20)
 
-agent.save_weights('weight.dhf5', overwrite=True)
+agent.save_weights('weight1.dhf5', overwrite=True)
