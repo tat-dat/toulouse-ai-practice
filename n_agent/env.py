@@ -19,8 +19,8 @@ class Env(object):
 #    reward_range = (-np.inf, np.inf)
 #    action_space = None
 #    observation_space = None
-    def __init__(self):
-        self.Nn=2
+    def __init__(self,N):
+        self.Nn=N
 #        self.range = 1000  # +/- value the randomly select number can be between
 #        self.bounds = 2000  # Action space bounds
 
@@ -54,13 +54,14 @@ class Env(object):
         Cr=2
         Cs=0.4
         Cd=2
-        R=2*(Cd+Cr+Cs/mu)
         D=[]
         mu=0.5
         lam=0.3
+        R=2*(Cd+Cr+Cs/mu)
         reward=[]
         N=self.Nn
         meet=np.random.exponential(1/lam,size=N)
+        print('Action in env {}'.format(action))
         for i in range(N):
             if meet[i]<action[i]:
                 D.append(meet[i]+np.random.exponential(1/mu))
@@ -75,12 +76,13 @@ class Env(object):
         ob=[]
         for i in range(N):
             if reward[i]>0:
+                ob.append(3)
+            elif reward[i]<0:
                 ob.append(2)
-            if reward[i]<0:
-                ob.append(1)
             else:
-                ob.append(0)
-        return ob,reward,1,{}
+                ob.append(1)
+        print('Reward {}'.format(reward))
+        return ob,reward,False,{}
 
     def reset(self):
         """
