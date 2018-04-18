@@ -61,7 +61,7 @@ class Env(object):
         reward=[]
         N=self.Nn
         meet=np.random.exponential(1/lam,size=N)
-        print('Action in env {}'.format(action))
+        print('Action: {}'.format(action))
         for i in range(N):
             if meet[i]<action[i]:
                 D.append(meet[i]+np.random.exponential(1/mu))
@@ -76,12 +76,12 @@ class Env(object):
         ob=[]
         for i in range(N):
             if reward[i]>0:
-                ob.append(3)
+                ob.append([action[i],3])
             elif reward[i]<0:
-                ob.append(2)
+                ob.append([action[i],2])
             else:
-                ob.append(1)
-        print('Reward {}'.format(reward))
+                ob.append([action[i],1])
+        print('Reward: {}'.format(reward))
         return ob,reward,False,{}
 
     def reset(self):
@@ -92,4 +92,4 @@ class Env(object):
             observation (object): The initial observation of the space. Initial reward is assumed to be 0.
         """
         N=self.Nn
-        return np.zeros(N).tolist()
+        return np.ones((N,2)).tolist()
