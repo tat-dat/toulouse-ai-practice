@@ -26,7 +26,8 @@ class Env(object):
 
 #        self.action_space = spaces.Box(low=np.array([0]), high=np.array([self.bounds]))
 #        self.observation_space = spaces.Discrete(4)
-
+        self.ac=[]
+        self.rw=[]
         self.seed()
         self.reset()
         
@@ -61,7 +62,8 @@ class Env(object):
         reward=[]
         N=self.Nn
         meet=np.random.exponential(1/lam,size=N)
-        print('Action: {}'.format(action))
+        self.ac.append(action)
+#        print('Action: {}'.format(action))
         for i in range(N):
             if meet[i]<action[i]:
                 D.append(meet[i]+np.random.exponential(1/mu))
@@ -81,7 +83,9 @@ class Env(object):
                 ob.append([action[i],2])
             else:
                 ob.append([action[i],1])
-        print('Reward: {}'.format(reward))
+#        print('Reward: {}'.format(reward))
+        self.rw.append(reward)
+#        reward=[np.mean(np.array(self.rw)[:,i]) for i in range(self.Nn)]
         return ob,reward,False,{}
 
     def reset(self):
