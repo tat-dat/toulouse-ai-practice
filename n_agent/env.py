@@ -9,6 +9,7 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 import numpy as np
+import random
 
 class Env(object):
     """The abstract environment class that is used by all agents. This class has the exact
@@ -63,8 +64,8 @@ class Env(object):
         N=self.Nn
         meet=np.random.exponential(1/lam,size=N)
         self.ac.append(action)
-#        print('Action: {}'.format(action))
         for i in range(N):
+            assert action[i]!=np.nan
             if meet[i]<action[i]:
                 D.append(meet[i]+np.random.exponential(1/mu))
                 reward.append(-Cr-Cs*(D[-1]-meet[i]))
@@ -77,15 +78,16 @@ class Env(object):
             reward[ind]=reward[ind]+R-Cd
         ob=[]
         for i in range(N):
-            if reward[i]>0:
-                ob.append([action[i],3])
-            elif reward[i]<0:
+            if reward[i]>0:# be the first who meets the Destination and has positive reward
+                ob.append([action[i],4])
+            elif (i==ind and D[ind] is not np.inf):#be the first who meets D but has negative reward
+                ob.append([action[i], 3])
+            elif meet[i]<action[i]:
                 ob.append([action[i],2])
             else:
                 ob.append([action[i],1])
-#        print('Reward: {}'.format(reward))
         self.rw.append(reward)
-#        reward=[np.mean(np.array(self.rw)[:,i]) for i in range(self.Nn)]
+  #      reward=[np.mean(np.array(self.rw)[:,i]) for i in range(self.Nn)]
         return ob,reward,False,{}
 
     def reset(self):
@@ -96,4 +98,36 @@ class Env(object):
             observation (object): The initial observation of the space. Initial reward is assumed to be 0.
         """
         N=self.Nn
-        return np.ones((N,2)).tolist()
+        Cr = 2
+        Cs = 0.4
+        Cd = 2
+        mu = 0.5
+        lam = 0.3
+        R = 2 * (Cd + Cr + Cs / mu)
+        reward=[]
+        D=[]
+        meet = np.random.exponential(1 / lam, size=N)
+        action=[random.randint(0,10) for _ in range(N)]
+        for i in range(N):
+            assert action[i]!=np.nan
+            if meet[i]<action[i]:
+                D.append(meet[i]+np.random.exponential(1/mu))
+                reward.append(-Cr-Cs*(D[-1]-meet[i]))
+            else:
+                D.append(np.inf)
+                reward.append(0)
+        ind=D.index(min(D))
+        pro=int(D[ind] is not np.inf)
+        if pro==1:
+            reward[ind]=reward[ind]+R-Cd
+        ob=[]
+        for i in range(N):
+            if reward[i]>0:# be the first who meets the Destination and has positive reward
+                ob.append([action[i],4])
+            elif (i==ind and D[ind] is not np.inf):#be the first who meets D but has negative reward
+                ob.append([action[i], 3])
+            elif meet[i]<action[i]:
+                ob.append([action[i],2])
+            else:
+                ob.append([action[i],1])
+        return ob
